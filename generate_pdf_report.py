@@ -249,10 +249,10 @@ def create_ieee_report(output_pdf_path="Regional_Pollution_Hotspot_Pattern_Group
     story.append(Paragraph(title_text, title_style))
 
     # 1 Author Table (Person 1 centered)
-    author1_text = """<b>Aditya Kumar Singh</b><br/>
+    author1_text = """<b>Abhay Kumar</b><br/>
 <font size=7.2 color="#334155">Department of Computer Science and Engineering<br/>
 Lovely Professional University, Phagwara, Punjab, India<br/></font>
-<font size=7.2 color="#1e40af">iplmeerut60@gmail.com</font>"""
+<font size=7.2 color="#1e40af">sanjeevjasrotia16@gmail.com</font>"""
 
     author_table = Table(
         [[Paragraph(author1_text, author_name_style)]],

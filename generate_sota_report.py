@@ -50,7 +50,7 @@ class SotaNumberedCanvas(canvas.Canvas):
         # Footer (Centered)
         self.setFont("Times-Roman", 8.5)
         self.setFillColor(colors.HexColor("#475569"))
-        footer_text = f"SOTA  •  Aditya Kumar Singh   |   Page {self._pageNumber}"
+        footer_text = f"SOTA  •  Abhay Kumar   |   Page {self._pageNumber}"
         self.drawCentredString(page_w / 2.0, 24, footer_text)
 
         self.restoreState()
@@ -238,7 +238,7 @@ def create_sota_report(output_pdf_path="SOTA_Report_Regional_Pollution_Hotspot_G
         [Paragraph("<b>Title of Project :-</b>", meta_label_style),
          Paragraph("Regional Pollution Hotspot Pattern Grouping from Satellite Data Across Major Airshed Basins", meta_val_style)],
         [Paragraph("<b>Team Members :-</b>", meta_label_style),
-         Paragraph("Aditya Kumar Singh", meta_val_style)],
+         Paragraph("Abhay Kumar", meta_val_style)],
         [Paragraph("<b>Guide / Supervisor :-</b>", meta_label_style),
          Paragraph("[Faculty Name - to be filled]", meta_val_style)],
         [Paragraph("<b>Registration Number :-</b>", meta_label_style),
