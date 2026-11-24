@@ -1,0 +1,5 @@
+cluster_id,pollution_archetype,hotspot_risk_tier
+0,Type 1: Industrial & Power Combustion Hotspot,Tier 1 (Red Zone - Industrial Mega-Emitter)
+1,Type 4: Clean Background & Resilient Airshed,Tier 4 (Green Zone - Clean Airshed)
+2,Type 3: Agricultural Biomass & Stubble Burning Plume,Tier 3 (Amber Zone - Stubble Plume)
+3,Type 2: Dense Urban-Vehicular Smog Corridor,Tier 2 (Orange Zone - Dense Urban Smog)

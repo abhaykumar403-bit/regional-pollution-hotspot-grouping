@@ -1,0 +1,2 @@
+Adjusted_Rand_Index_ARI,Normalized_Mutual_Info_NMI,Homogeneity_Score,Completeness_Score,V_Measure_Score,Quadratic_Weighted_Kappa
+0.996,0.9939,0.9938,0.9939,0.9939,0.9995

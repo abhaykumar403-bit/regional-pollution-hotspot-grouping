@@ -1,0 +1,5 @@
+,Pred: Industrial & Power Combustion Hotspot,Pred: Dense Urban-Vehicular Smog Corridor,Pred: Agricultural Biomass & Stubble Burning Plume,Pred: Clean Background & Resilient Airshed
+True: Industrial & Power Combustion Hotspot,525,0,0,0
+True: Dense Urban-Vehicular Smog Corridor,2,485,0,0
+True: Agricultural Biomass & Stubble Burning Plume,0,0,202,0
+True: Clean Background & Resilient Airshed,0,0,0,386

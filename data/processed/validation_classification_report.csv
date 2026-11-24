@@ -1,0 +1,8 @@
+,precision,recall,f1-score,support
+Type 1: Industrial & Power Combustion Hotspot,0.9962049335863378,1.0,0.9980988593155894,525.0
+Type 2: Dense Urban-Vehicular Smog Corridor,1.0,0.9958932238193019,0.9979423868312757,487.0
+Type 3: Agricultural Biomass & Stubble Burning Plume,1.0,1.0,1.0,202.0
+Type 4: Clean Background & Resilient Airshed,1.0,1.0,1.0,386.0
+accuracy,0.99875,0.99875,0.99875,0.99875
+macro avg,0.9990512333965844,0.9989733059548255,0.9990103115367163,1600.0
+weighted avg,0.9987547438330171,0.99875,0.9987499022046973,1600.0

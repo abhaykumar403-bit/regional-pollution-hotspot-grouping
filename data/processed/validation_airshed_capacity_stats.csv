@@ -1,0 +1,5 @@
+predicted_archetype,mean,std,count
+Type 1: Industrial & Power Combustion Hotspot,34.125863377609114,14.589588179110873,527
+Type 2: Dense Urban-Vehicular Smog Corridor,25.93587628865979,9.249099593498228,485
+Type 3: Agricultural Biomass & Stubble Burning Plume,31.567227722772277,11.888567786640078,202
+Type 4: Clean Background & Resilient Airshed,91.54829015544041,6.984690767728081,386

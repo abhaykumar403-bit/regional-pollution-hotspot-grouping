@@ -1,0 +1,112 @@
+/* AeroClust AI Custom Stylesheet */
+
+@keyframes pulseGlow {
+    0%, 100% { opacity: 0.9; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.15); }
+}
+
+.pulse-indicator {
+    animation: pulseGlow 2.2s infinite ease-in-out;
+}
+
+/* Nav Tab Active States */
+.nav-tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #94a3b8;
+    border-radius: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-tab:hover {
+    color: #f1f5f9;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-tab.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+    box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35);
+}
+
+/* Glassmorphism Card Panels */
+.glass-panel {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(51, 65, 85, 0.55);
+    border-radius: 1rem;
+}
+
+.glass-panel-subtle {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: 0.75rem;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #090d16;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Leaflet Map Custom Container */
+#map-container {
+    height: 620px;
+    width: 100%;
+    border-radius: 1rem;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.leaflet-popup-content-wrapper {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+}
+
+.leaflet-popup-tip {
+    background: #0f172a !important;
+}
+
+/* Slider Controls Styling */
+input[type=range] {
+    accent-color: #e11d48;
+}
+
+/* Table Enhancements */
+.custom-table th {
+    background-color: rgba(15, 23, 42, 0.95);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #334155;
+}
+
+.custom-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.825rem;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+    color: #cbd5e1;
+}
+
+.custom-table tr:hover td {
+    background-color: rgba(51, 65, 85, 0.2);
+}

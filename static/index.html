@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroClust AI | Regional Satellite Pollution Hotspot DSS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet GIS Map CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-['Plus_Jakarta_Sans'] antialiased selection:bg-rose-600 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/85 border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-rose-600 via-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-500/25 ring-1 ring-white/20">
+                    <i class="fa-solid fa-satellite text-white text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">AEROCLUST-AI</span>
+                        <span class="px-2 py-0.5 text-xs font-semibold uppercase tracking-wider rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20">EO CLUSTER DSS</span>
+                    </div>
+                    <p class="text-xs text-slate-400 font-medium">Regional Pollution Hotspot Pattern Grouping & Carrying-Capacity System</p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="hidden md:flex items-center space-x-1 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
+                <button onclick="switchTab('overview')" id="tab-overview" class="nav-tab active">
+                    <i class="fa-solid fa-chart-pie mr-2 text-xs"></i>Overview
+                </button>
+                <button onclick="switchTab('map')" id="tab-map" class="nav-tab">
+                    <i class="fa-solid fa-earth-asia mr-2 text-xs"></i>Satellite GIS
+                </button>
+                <button onclick="switchTab('simulator')" id="tab-simulator" class="nav-tab">
+                    <i class="fa-solid fa-sliders mr-2 text-xs"></i>Hotspot Simulator
+                </button>
+                <button onclick="switchTab('batch')" id="tab-batch" class="nav-tab">
+                    <i class="fa-solid fa-file-csv mr-2 text-xs"></i>Batch Ingestion
+                </button>
+                <button onclick="switchTab('validation')" id="tab-validation" class="nav-tab">
+                    <i class="fa-solid fa-microscope mr-2 text-xs"></i>Validation & Science
+                </button>
+                <button onclick="switchTab('figures')" id="tab-figures" class="nav-tab">
+                    <i class="fa-solid fa-images mr-2 text-xs"></i>Figures
+                </button>
+            </nav>
+
+            <!-- System Status Indicator -->
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-indicator"></span>
+                    <span>TROPOMI / ERA5 Ready</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ========================================================================= -->
+        <!-- TAB 1: OVERVIEW -->
+        <!-- ========================================================================= -->
+        <section id="view-overview" class="tab-view space-y-8">
+            <!-- Top KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="glass-panel p-5 relative overflow-hidden group">
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Grids Analyzed</span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                            <i class="fa-solid fa-border-all text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline space-x-2">
+                        <span id="stat-total-grids" class="text-3xl font-extrabold text-white">--</span>
+                        <span class="text-xs text-slate-400 font-medium">regional cells</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Multi-sensor satellite grid coverage</p>
+                </div>
+
+                <div class="glass-panel p-5 relative overflow-hidden group">
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-rose-500/10 rounded-full blur-xl group-hover:bg-rose-500/20 transition-all"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Industrial Mega-Hotspots</span>
+                        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400">
+                            <i class="fa-solid fa-industry text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline space-x-2">
+                        <span id="stat-ind-count" class="text-3xl font-extrabold text-rose-400">--</span>
+                        <span id="stat-ind-pct" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">--%</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Tier 1 Severe point-source emissions</p>
+                </div>
+
+                <div class="glass-panel p-5 relative overflow-hidden group">
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Airshed Capacity Deficits</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline space-x-2">
+                        <span id="stat-deficits-count" class="text-3xl font-extrabold text-amber-400">--</span>
+                        <span id="stat-deficits-pct" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">--%</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Emissions exceed assimilative capacity</p>
+                </div>
+
+                <div class="glass-panel p-5 relative overflow-hidden group">
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Hidden Hotspots Discovered</span>
+                        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+                            <i class="fa-solid fa-eye-slash text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline space-x-2">
+                        <span id="stat-hidden-count" class="text-3xl font-extrabold text-purple-400">--</span>
+                        <span class="text-xs text-purple-400/80 font-medium">unmonitored</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Satellite detected; zero ground stations</p>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Pollution Archetype Distribution</h3>
+                            <p class="text-xs text-slate-400">Unsupervised segmentation of regional atmospheric vectors</p>
+                        </div>
+                        <span class="text-xs font-mono px-2 py-1 rounded bg-slate-800 text-slate-300">k = 4 clusters</span>
+                    </div>
+                    <div class="h-64 flex items-center justify-center">
+                        <canvas id="chart-archetype-dist"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Assimilative Capacity Stress by Region</h3>
+                            <p class="text-xs text-slate-400">Mean satellite pollution index across regional air basins</p>
+                        </div>
+                        <span class="text-xs font-mono px-2 py-1 rounded bg-slate-800 text-slate-300">TROPOMI + VIIRS</span>
+                    </div>
+                    <div class="h-64 flex items-center justify-center">
+                        <canvas id="chart-region-bars"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hotspots Data Table -->
+            <div class="glass-panel p-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-base font-bold text-white">Satellite Observation Records</h3>
+                        <p class="text-xs text-slate-400">Interactive inspection of clustered regional grid cells</p>
+                    </div>
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        <select id="filter-table-archetype" onchange="filterTable()" class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300 focus:outline-none focus:ring-1 focus:ring-rose-500">
+                            <option value="">All Archetypes</option>
+                            <option value="Type 1: Industrial & Power Combustion Hotspot">Type 1: Industrial & Power</option>
+                            <option value="Type 2: Dense Urban-Vehicular Smog Corridor">Type 2: Urban Smog</option>
+                            <option value="Type 3: Agricultural Biomass & Stubble Burning Plume">Type 3: Biomass Stubble</option>
+                            <option value="Type 4: Clean Background & Resilient Airshed">Type 4: Clean Airshed</option>
+                        </select>
+                        <input type="text" id="filter-table-search" oninput="filterTable()" placeholder="Search region or cell ID..." class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300 focus:outline-none focus:ring-1 focus:ring-rose-500 w-full sm:w-48">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-lg border border-slate-800">
+                    <table class="w-full custom-table text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th>Cell ID</th>
+                                <th>Region Name</th>
+                                <th>Archetype / Risk Tier</th>
+                                <th>Pollution Index</th>
+                                <th>SO2 Column</th>
+                                <th>NO2 Column</th>
+                                <th>AOD (550nm)</th>
+                                <th>Capacity Score</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-hotspots-body">
+                            <!-- Populated dynamically via app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 2: SATELLITE GIS MAP -->
+        <!-- ========================================================================= -->
+        <section id="view-map" class="tab-view hidden space-y-6">
+            <div class="glass-panel p-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-earth-asia text-rose-500"></i>
+                            Regional Satellite Earth Observation GIS Map
+                        </h3>
+                        <p class="text-xs text-slate-400">Interactive spatial visualization of pollution hotspot clusters across Indian airshed basins</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="toggleMapFilter('all')" class="px-3 py-1 text-xs rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700">All Grids</button>
+                        <button onclick="toggleMapFilter('ind')" class="px-3 py-1 text-xs rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30">Industrial (Red)</button>
+                        <button onclick="toggleMapFilter('urb')" class="px-3 py-1 text-xs rounded-md bg-orange-500/20 text-orange-400 border border-orange-500/30">Urban (Orange)</button>
+                        <button onclick="toggleMapFilter('bio')" class="px-3 py-1 text-xs rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30">Biomass (Amber)</button>
+                        <button onclick="toggleMapFilter('clean')" class="px-3 py-1 text-xs rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Clean (Green)</button>
+                        <button onclick="toggleMapFilter('hidden')" class="px-3 py-1 text-xs rounded-md bg-purple-500/20 text-purple-400 border border-purple-500/30">Hidden Only</button>
+                    </div>
+                </div>
+
+                <div id="map-container" class="border border-slate-800"></div>
+
+                <div class="mt-4 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-4">
+                    <div class="flex items-center space-x-4">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-600 inline-block"></span> Industrial Mega-Emitter</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> Urban Smog Corridor</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> Agricultural Biomass Plume</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Clean Baseline Airshed</span>
+                    </div>
+                    <span id="map-counter-label" class="text-slate-300 font-mono">Showing 1,600 / 1,600 grid cells</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 3: REAL-TIME SIMULATOR -->
+        <!-- ========================================================================= -->
+        <section id="view-simulator" class="tab-view hidden space-y-6">
+            <div class="glass-panel p-6">
+                <div class="mb-6">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-rose-500"></i>
+                        Interactive Multi-Sensor Satellite Hotspot Simulator
+                    </h3>
+                    <p class="text-xs text-slate-400">Modulate atmospheric trace gases, aerosol columns, and reanalysis parameters to compute real-time archetype prediction</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Column 1: Sentinel-5P Trace Gases -->
+                    <div class="glass-panel-subtle p-4 space-y-4">
+                        <h4 class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-cloud"></i> Sentinel-5P TROPOMI Columns
+                        </h4>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Tropospheric NO2 (µmol/m²)</span>
+                                <span id="val-no2" class="font-mono text-rose-400 font-bold">180</span>
+                            </div>
+                            <input type="range" id="sim-no2" min="5" max="450" value="180" oninput="updateSimValue('no2')" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">PBL SO2 Column (µmol/m²)</span>
+                                <span id="val-so2" class="font-mono text-rose-400 font-bold">140</span>
+                            </div>
+                            <input type="range" id="sim-so2" min="2" max="350" value="140" oninput="updateSimValue('so2')" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Carbon Monoxide CO (mmol/m²)</span>
+                                <span id="val-co" class="font-mono text-rose-400 font-bold">45</span>
+                            </div>
+                            <input type="range" id="sim-co" min="10" max="110" value="45" oninput="updateSimValue('co')" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Formaldehyde HCHO (µmol/m²)</span>
+                                <span id="val-hcho" class="font-mono text-rose-400 font-bold">40</span>
+                            </div>
+                            <input type="range" id="sim-hcho" min="5" max="140" value="40" oninput="updateSimValue('hcho')" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Methane CH4 (ppb)</span>
+                                <span id="val-ch4" class="font-mono text-rose-400 font-bold">1930</span>
+                            </div>
+                            <input type="range" id="sim-ch4" min="1760" max="2200" value="1930" oninput="updateSimValue('ch4')" class="w-full">
+                        </div>
+                    </div>
+
+                    <!-- Column 2: MODIS/VIIRS Aerosols & Thermal -->
+                    <div class="glass-panel-subtle p-4 space-y-4">
+                        <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-fire-flame-curved"></i> MODIS / VIIRS Indicators
+                        </h4>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">AOD at 550nm (Optical Depth)</span>
+                                <span id="val-aod" class="font-mono text-amber-400 font-bold">0.85</span>
+                            </div>
+                            <input type="range" id="sim-aod" min="0.05" max="2.0" step="0.05" value="0.85" oninput="updateSimValue('aod')" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">UV Aerosol Index (UVAI)</span>
+                                <span id="val-uvai" class="font-mono text-amber-400 font-bold">1.2</span>
+                            </div>
+                            <input type="range" id="sim-uvai" min="-0.8" max="4.0" step="0.1" value="1.2" oninput="updateSimValue('uvai')" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Fire Radiative Power FRP (MW)</span>
+                                <span id="val-frp" class="font-mono text-amber-400 font-bold">15</span>
+                            </div>
+                            <input type="range" id="sim-frp" min="0" max="450" value="15" oninput="updateSimValue('frp')" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Land Surface Temp LST (°C)</span>
+                                <span id="val-lst" class="font-mono text-amber-400 font-bold">37</span>
+                            </div>
+                            <input type="range" id="sim-lst" min="15" max="52" value="37" oninput="updateSimValue('lst')" class="w-full">
+                        </div>
+                    </div>
+
+                    <!-- Column 3: ERA5 Meteorology -->
+                    <div class="glass-panel-subtle p-4 space-y-4">
+                        <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-wind"></i> ERA5 Meteorological Dispersion
+                        </h4>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Boundary Layer Height BLH (m)</span>
+                                <span id="val-blh" class="font-mono text-blue-400 font-bold">750</span>
+                            </div>
+                            <input type="range" id="sim-blh" min="200" max="2500" step="25" value="750" oninput="updateSimValue('blh')" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Surface Wind Speed (m/s)</span>
+                                <span id="val-wind" class="font-mono text-blue-400 font-bold">2.4</span>
+                            </div>
+                            <input type="range" id="sim-wind" min="0.5" max="15.0" step="0.1" value="2.4" oninput="updateSimValue('wind')" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Relative Humidity (%)</span>
+                                <span id="val-rh" class="font-mono text-blue-400 font-bold">55</span>
+                            </div>
+                            <input type="range" id="sim-rh" min="15" max="95" value="55" oninput="updateSimValue('rh')" class="w-full">
+                        </div>
+
+                        <div class="pt-4">
+                            <button onclick="runSimulation()" class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-600 via-rose-500 to-orange-500 text-white font-bold text-sm shadow-lg shadow-rose-500/25 hover:opacity-95 transition-all">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Classify Observation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Output Result Card -->
+                <div id="sim-result-card" class="mt-6 p-6 rounded-xl bg-slate-900 border border-slate-800">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider block">Assigned Archetype</span>
+                            <span id="sim-res-archetype" class="text-lg font-extrabold text-rose-400 mt-1 block">Industrial / Power</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider block">Hotspot Risk Tier</span>
+                            <span id="sim-res-tier" class="text-lg font-bold text-white mt-1 block">Tier 1 (Red Zone)</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider block">Satellite Pollution Index</span>
+                            <span id="sim-res-index" class="text-2xl font-black text-rose-400 mt-1 block">78.4 / 100</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider block">Carrying-Capacity Status</span>
+                            <span id="sim-res-status" class="text-sm font-bold px-3 py-1 rounded-full bg-rose-500/20 text-rose-400 inline-block mt-1">DEFICIT BREACH</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-800 text-xs text-slate-300 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-exclamation text-rose-400 mt-0.5"></i>
+                        <span id="sim-res-mitigation">Action Protocol: Immediate Flue-Gas Desulfurization (FGD) verification, thermal plant load throttling, and continuous emission monitoring (CEMS) audit.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 4: BATCH INGESTION -->
+        <!-- ========================================================================= -->
+        <section id="view-batch" class="tab-view hidden space-y-6">
+            <div class="glass-panel p-6">
+                <div class="mb-6">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-csv text-rose-500"></i>
+                        Batch Satellite Grid File Ingestion
+                    </h3>
+                    <p class="text-xs text-slate-400">Upload a CSV file containing satellite observations to perform batch archetype clustering and deficit auditing</p>
+                </div>
+
+                <div class="border-2 border-dashed border-slate-700 hover:border-rose-500/60 rounded-xl p-8 text-center bg-slate-900/50 cursor-pointer transition-all" onclick="document.getElementById('batch-file-input').click()">
+                    <input type="file" id="batch-file-input" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
+                    <div class="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                    </div>
+                    <span class="text-sm font-bold text-white block">Click to upload or drag and drop satellite CSV</span>
+                    <span class="text-xs text-slate-400 mt-1 block">Expected columns: NO2, SO2, CO, HCHO, CH4, AOD, UVAI, FRP, BLH, Wind</span>
+                </div>
+
+                <div id="batch-results-panel" class="hidden mt-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-white">Batch Inference Summary</h4>
+                        <span id="batch-count-badge" class="px-2.5 py-1 text-xs rounded-full bg-rose-500/20 text-rose-400 font-semibold">0 records processed</span>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-slate-800">
+                        <table class="w-full custom-table text-left border-collapse">
+                            <thead>
+                                <tr>
+                                    <th>Cell ID</th>
+                                    <th>Region Name</th>
+                                    <th>Assigned Archetype</th>
+                                    <th>Risk Tier</th>
+                                    <th>Pollution Index</th>
+                                    <th>Assimilative Capacity</th>
+                                    <th>Deficit Breached</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 5: VALIDATION & SCIENCE -->
+        <!-- ========================================================================= -->
+        <section id="view-validation" class="tab-view hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="glass-panel p-5">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Adjusted Rand Index (ARI)</span>
+                    <span id="val-ari" class="text-3xl font-extrabold text-white mt-2 block">0.9960</span>
+                    <p class="text-xs text-slate-400 mt-1">High external cluster validity alignment vs ground truth</p>
+                </div>
+                <div class="glass-panel p-5">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Normalized Mutual Info (NMI)</span>
+                    <span id="val-nmi" class="text-3xl font-extrabold text-blue-400 mt-2 block">0.9939</span>
+                    <p class="text-xs text-slate-400 mt-1">Strong information-theoretic cluster preservation</p>
+                </div>
+                <div class="glass-panel p-5">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Quadratic Weighted Kappa</span>
+                    <span id="val-kappa" class="text-3xl font-extrabold text-emerald-400 mt-2 block">0.9995</span>
+                    <p class="text-xs text-slate-400 mt-1">Strict ordinal agreement across severity tiers</p>
+                </div>
+            </div>
+
+            <!-- Hidden Hotspots Audit Panel -->
+            <div class="glass-panel p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-eye-slash text-purple-400"></i>
+                            Satellite Blind-Spot Discovery: Hidden Unmonitored Hotspots
+                        </h3>
+                        <p class="text-xs text-slate-400">Critical industrial and stubble fire grid cells lacking ground CAAQMS stations, discovered solely via satellite Earth observation</p>
+                    </div>
+                    <span id="hidden-counter-badge" class="px-2.5 py-1 text-xs rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 font-semibold">323 Detected</span>
+                </div>
+
+                <div class="overflow-x-auto rounded-lg border border-slate-800">
+                    <table class="w-full custom-table text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th>Cell ID</th>
+                                <th>Airshed Basin</th>
+                                <th>Coordinates</th>
+                                <th>Archetype</th>
+                                <th>Pollution Index</th>
+                                <th>SO2 Column</th>
+                                <th>NO2 Column</th>
+                                <th>Ground Station Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-hidden-body">
+                            <!-- Populated dynamically via app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 6: FIGURES GALLERY -->
+        <!-- ========================================================================= -->
+        <section id="view-figures" class="tab-view hidden space-y-6">
+            <div class="glass-panel p-6">
+                <div class="mb-6">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-images text-rose-500"></i>
+                        Publication-Grade Figure Suite (300 DPI)
+                    </h3>
+                    <p class="text-xs text-slate-400">Visual proof of mathematical cluster optimization, spatial projections, and empirical validation</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-panel-subtle p-4">
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">Figure 1: Optimal k Evaluation (Elbow & Silhouette)</h4>
+                        <img src="/api/figures/01_optimal_k_elbow_silhouette.png" class="w-full rounded-lg border border-slate-800 hover:scale-[1.01] transition-transform">
+                    </div>
+                    <div class="glass-panel-subtle p-4">
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">Figure 2: Latent Atmospheric PCA Feature Space</h4>
+                        <img src="/api/figures/02_pca_cluster_space.png" class="w-full rounded-lg border border-slate-800 hover:scale-[1.01] transition-transform">
+                    </div>
+                    <div class="glass-panel-subtle p-4">
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">Figure 3: Regional Geospatial Hotspot Map</h4>
+                        <img src="/api/figures/03_geospatial_pollution_hotspots_map.png" class="w-full rounded-lg border border-slate-800 hover:scale-[1.01] transition-transform">
+                    </div>
+                    <div class="glass-panel-subtle p-4">
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">Figure 4: Normalized Confusion Matrix vs CAAQMS</h4>
+                        <img src="/api/figures/04_confusion_matrix_validation.png" class="w-full rounded-lg border border-slate-800 hover:scale-[1.01] transition-transform">
+                    </div>
+                    <div class="glass-panel-subtle p-4">
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">Figure 5: Airshed Carrying-Capacity Stress Boxplot</h4>
+                        <img src="/api/figures/05_airshed_capacity_stress_boxplot.png" class="w-full rounded-lg border border-slate-800 hover:scale-[1.01] transition-transform">
+                    </div>
+                    <div class="glass-panel-subtle p-4">
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">Figure 6: Multi-Pollutant Fingerprint Signatures</h4>
+                        <img src="/api/figures/06_pollutant_fingerprint_radar_profiles.png" class="w-full rounded-lg border border-slate-800 hover:scale-[1.01] transition-transform">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
